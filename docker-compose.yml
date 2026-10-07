@@ -1,0 +1,40 @@
+name: gastos
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-gastos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no arquivo .env}
+      POSTGRES_DB: ${POSTGRES_DB:-gastos}
+    ports:
+      # só acessível da própria máquina (ex.: DBeaver); não expõe para a rede
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Nesta etapa a api só roda scripts pontuais (migrate / import).
+  # O servidor HTTP entra na próxima etapa; por isso o perfil "tools".
+  api:
+    build: ./api
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-gastos}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-gastos}
+    volumes:
+      - ./data:/data:ro
+      - ./reports:/app/reports
+
+volumes:
+  pgdata:
