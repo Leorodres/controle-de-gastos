@@ -1,0 +1,169 @@
+/* Estilos simples, pensados primeiro para o celular. As cores ficam em variáveis (--nome)
+   para o modo escuro só trocar os valores. */
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #cbd5e1;
+  --primary: #0f766e;
+  --primary-text: #ffffff;
+  --danger: #b91c1c;
+  --warn: #b45309;
+  --income: #15803d;
+  --reimb: #1d4ed8;
+  --topbar: #0f172a;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --card: #162033;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #334155;
+    --primary: #34d399;
+    --primary-text: #052e2b;
+    --danger: #f87171;
+    --warn: #fbbf24;
+    --income: #4ade80;
+    --reimb: #93c5fd;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+h1, h2 { margin: 0; }
+h2 { font-size: 1.1rem; margin-bottom: 0.75rem; }
+
+.app {
+  min-height: 100dvh;
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: var(--topbar);
+  color: #fff;
+  padding: calc(0.75rem + env(safe-area-inset-top)) 1rem 0.75rem;
+}
+.topbar h1 { font-size: 1.15rem; }
+
+.content { flex: 1; padding: 1rem; padding-bottom: 5.5rem; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+/* campos */
+.field, .check { display: grid; gap: 0.25rem; font-size: 0.9rem; color: var(--muted); }
+.check { display: flex; align-items: center; gap: 0.5rem; min-height: 44px; color: var(--text); font-size: 1rem; }
+.check input { width: 1.25rem; height: 1.25rem; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; align-items: end; }
+
+input[type='text'], input[type='date'], input[type='search'], select {
+  width: 100%;
+  min-height: 44px; /* alvo de toque confortável no celular */
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+.counter { justify-self: end; font-size: 0.75rem; }
+.muted { color: var(--muted); }
+.small { font-size: 0.8rem; margin: 0; }
+.center { text-align: center; }
+.warn { color: var(--warn); }
+
+/* botões */
+.btn {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.btn-primary { background: var(--primary); border-color: var(--primary); color: var(--primary-text); font-weight: 600; flex: 1; }
+.btn-danger { color: var(--danger); border-color: var(--danger); }
+.btn:disabled { opacity: 0.6; cursor: wait; }
+.actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.danger-zone { border-top: 1px solid var(--border); padding-top: 0.85rem; }
+
+/* sugestões e alternativas de categoria */
+.suggestions { list-style: none; margin: 0.25rem 0 0; padding: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.suggestions li + li { border-top: 1px solid var(--border); }
+.suggestions button {
+  width: 100%; min-height: 48px; padding: 0.4rem 0.75rem;
+  display: grid; gap: 0.1rem; text-align: left;
+  background: var(--bg); color: var(--text); border: 0; font: inherit; cursor: pointer;
+}
+.suggestions .muted { font-size: 0.8rem; }
+
+.hint { border: 1px dashed var(--border); border-radius: 8px; padding: 0.6rem 0.75rem; }
+.hint p { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--muted); }
+.hint-warn { border-color: var(--warn); }
+.hint-warn p { color: var(--warn); }
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.chip { min-height: 40px; padding: 0.3rem 0.8rem; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--text); font: inherit; cursor: pointer; }
+.chip-on { background: var(--primary); border-color: var(--primary); color: var(--primary-text); }
+
+.error-box { margin: 0; padding: 0.6rem 0.75rem 0.6rem 1.6rem; border: 1px solid var(--danger); border-radius: 8px; color: var(--danger); font-size: 0.9rem; }
+
+/* lista */
+.filters { display: grid; gap: 0.25rem; }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li + li { border-top: 1px solid var(--border); }
+.item {
+  width: 100%; padding: 0.7rem 0;
+  display: flex; justify-content: space-between; gap: 0.75rem; align-items: flex-start;
+  background: transparent; color: inherit; border: 0; font: inherit; text-align: left; cursor: pointer;
+}
+/* min-width: 0 é o que permite o texto encolher e mostrar "…" dentro de um item flexível */
+.item-main { display: grid; gap: 0.1rem; min-width: 0; flex: 1; }
+.item-name { font-weight: 600; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.item-desc { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; }
+.item-meta { font-size: 0.8rem; color: var(--muted); }
+.badge { font-size: 0.7rem; font-weight: 600; padding: 0.05rem 0.4rem; border-radius: 999px; background: var(--border); color: var(--text); }
+.badge-kind { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+.amount { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+.amount-income { color: var(--income); }
+.amount-reimbursement { color: var(--reimb); }
+.amount-card_payment { color: var(--muted); }
+
+/* aviso e abas */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  background: var(--text); color: var(--bg);
+  padding: 0.6rem 1rem; border-radius: 999px; font-size: 0.9rem; max-width: 90%;
+}
+.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  display: flex; max-width: 640px; margin: 0 auto;
+  background: var(--card); border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab { flex: 1; min-height: 56px; border: 0; background: transparent; color: var(--muted); font: inherit; cursor: pointer; }
+.tab-on { color: var(--primary); font-weight: 700; }

@@ -1,7 +1,7 @@
 # Controle-de-gastos — controle de gastos doméstico
 
-Etapas feitas: **1** banco de dados + importação da planilha `Gastos.xlsx`; **2** API de cadastro com autopreenchimento, em **NestJS 12**.
-Próximas: formulário rápido (PWA), dashboards, acerto entre pessoas, importação da fatura do Nubank.
+Etapas feitas: **1** banco de dados + importação da planilha `Gastos.xlsx`; **2** API de cadastro com autopreenchimento, em **NestJS 12**; **3** front-end em React + Vite (formulário rápido e lista, instalável como app).
+Próximas: dashboards, acerto entre pessoas, deploy com login, importação da fatura do Nubank.
 
 ## Subindo
 
@@ -19,6 +19,36 @@ Para refazer a importação (por exemplo, depois de corrigir a planilha), acresc
 isso apaga só o que veio da planilha (`source = 'xlsx'`); o que for cadastrado manualmente no futuro não é tocado.
 
 Opções do import: `--owner Leonardo` (quem é "eu" na coluna Pessoa), `--report <caminho>`.
+
+## Front-end (etapa 3)
+
+```bash
+docker compose up -d --build     # db + api + web
+```
+
+Abra **http://localhost:8080**. Duas telas:
+
+- **Novo**: formulário de lançamento. Ao digitar o nome aparecem os nomes já usados; um toque preenche tipo, pagamento,
+  categoria, pessoa e o último valor. Se o nome já foi lançado em categorias diferentes, a categoria fica em branco e o
+  formulário mostra as opções para você escolher. Aceita descrição e compra parcelada.
+- **Lançamentos**: lista com busca por nome e filtro "só gastos sem categoria" (bom para arrumar o que faltou). A descrição aparece
+  em uma linha, cortada com "…" se for longa. Tocar num item abre a edição, onde também dá para apagar (ou apagar a parcela e as seguintes).
+
+**Para desenvolver o front** (recarrega ao salvar), em vez do container `web`:
+
+```bash
+docker compose up -d db api
+cd web && npm install && npm run dev      # http://localhost:5173
+npm test                                  # testes (Vitest + Testing Library)
+```
+
+Se você é novo em React, comece por `web/APRENDER.md`.
+
+**Instalar no celular (PWA).** O app já tem manifesto e service worker, mas o navegador só oferece "instalar" em **HTTPS**
+(ou em `localhost`). Por isso isso só vai funcionar de verdade no deploy, com domínio e certificado. Hoje o app só abre
+com a API no ar: lançar sem internet não é suportado, e só a "casca" (HTML, JS, CSS) fica em cache, nunca os dados.
+Para testar o layout no celular antes do deploy, defina `WEB_BIND=0.0.0.0` no `.env` e abra `http://IP-DO-PC:8080` na mesma rede Wi-Fi
+(não faça isso numa rede pública: ainda não há login).
 
 ## API (etapa 2)
 
@@ -105,12 +135,14 @@ Qualquer diferença aparece no relatório.
 ## Estrutura
 
 ```
-docker-compose.yml        db (Postgres 17) + api
+docker-compose.yml        db (Postgres 17) + api (NestJS) + web (nginx servindo o React)
 api/migrations/           SQL versionado (aplicado ao subir a api ou por npm run migrate)
 api/src/<módulo>/         um módulo Nest por assunto (transactions, suggestions, people, categories, health, database),
                           cada um com controller, service e module; schemas Zod validados pelo próprio Nest
 api/src/common/           validação global (Standard Schema) e filtro de erros
 api/src/lib/              regras puras e testáveis: nomes, parcelas, valores, sugestões
 api/test/                 testes e2e (Nest + supertest) com banco temporário
+web/src/                  front React: components/, hooks/, api.ts (único contato com o back-end), formState.ts
+web/nginx.conf            serve o build e encaminha /api para o Nest
 api/src/import/           leitura da planilha, mapeamento e relatório
 ```
