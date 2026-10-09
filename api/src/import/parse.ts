@@ -12,6 +12,7 @@ export interface RawRow {
   fixo: string | null;
   categoria: string | null;
   pessoa: string | null;
+  descricao: string | null;
   valor: number;
 }
 
@@ -105,6 +106,8 @@ function readBase(ws: ExcelJS.Worksheet): Pick<WorkbookData, 'rows' | 'skipped' 
     if (!c) throw new Error(`Aba Base: coluna "${HEADERS[key]}" não encontrada na linha 1`);
     return c;
   };
+  // coluna opcional: planilhas antigas não têm "Descrição"
+  const descricaoCol = cols.get('descricao') ?? null;
   const c = Object.fromEntries((Object.keys(HEADERS) as (keyof typeof HEADERS)[]).map((k) => [k, col(k)])) as Record<
     keyof typeof HEADERS,
     number
@@ -158,6 +161,7 @@ function readBase(ws: ExcelJS.Worksheet): Pick<WorkbookData, 'rows' | 'skipped' 
       fixo: asText(unwrap(row.getCell(c.fixo).value)),
       categoria: asText(unwrap(row.getCell(c.categoria).value)),
       pessoa: asText(unwrap(row.getCell(c.pessoa).value)),
+      descricao: descricaoCol ? asText(unwrap(row.getCell(descricaoCol).value)) : null,
       valor,
     });
   }

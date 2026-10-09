@@ -1,0 +1,60 @@
+### Requisições de exemplo (extensão "REST Client" do VS Code, ou o cliente HTTP do JetBrains)
+@base = http://localhost:3000
+
+### saúde
+GET {{base}}/health
+
+### pessoas e categorias (categorias vêm ordenadas pelas mais usadas)
+GET {{base}}/people
+###
+GET {{base}}/categories
+
+### sugestões enquanto digita: nomes parecidos + valores para preencher o formulário
+GET {{base}}/suggestions?q=ube
+###
+GET {{base}}/suggestions?q=colchão 6/12
+
+### cadastrar um gasto (substitua categoryId e personId pelos ids de /categories e /people)
+POST {{base}}/transactions
+Content-Type: application/json
+
+{
+  "occurredOn": "2026-10-08",
+  "name": "Uber",
+  "amount": 24.10,
+  "kind": "expense",
+  "paymentMethod": "credit",
+  "categoryId": 1,
+  "personId": 1,
+  "description": "corrida do aeroporto"
+}
+
+### compra parcelada: cria as parcelas 4 a 12, uma por mês
+POST {{base}}/transactions
+Content-Type: application/json
+
+{
+  "occurredOn": "2026-10-08",
+  "name": "Colchão",
+  "amount": "116,66",
+  "kind": "expense",
+  "paymentMethod": "credit",
+  "personId": 1,
+  "installments": { "total": 12, "current": 4 }
+}
+
+### listar com filtros
+GET {{base}}/transactions?from=2026-10-01&to=2026-10-31&kind=expense&limit=20
+###
+GET {{base}}/transactions?uncategorized=true
+
+### corrigir um lançamento
+PATCH {{base}}/transactions/1
+Content-Type: application/json
+
+{ "categoryId": 2 }
+
+### apagar este lançamento / esta parcela e as seguintes
+DELETE {{base}}/transactions/1
+###
+DELETE {{base}}/transactions/1?scope=following

@@ -1,8 +1,9 @@
 import { normalizeName, parseInstallment } from '../lib/normalize.js';
 import type { RawRow } from './parse.js';
 
-export type TxKind = 'income' | 'expense' | 'reimbursement' | 'card_payment';
-export type PaymentMethod = 'credit' | 'debit';
+import type { PaymentMethod, TxKind } from '../lib/types.js';
+
+export type { PaymentMethod, TxKind };
 
 /** Lançamento pronto para inserir no banco. */
 export interface TxInput {
@@ -18,6 +19,7 @@ export interface TxInput {
   person: string | null;
   installmentNo: number | null;
   installmentTotal: number | null;
+  description: string | null;
   sourceRef: string;
 }
 
@@ -34,6 +36,9 @@ export interface MappedRow {
   tx: TxInput;
   flags: RowFlags;
 }
+
+/** Limite da coluna description (também validado no banco). */
+export const MAX_DESCRIPTION = 200;
 
 export type MapResult = { ok: true; row: MappedRow } | { ok: false; sheetRow: number; reason: string };
 
@@ -60,6 +65,11 @@ export function mapRow(raw: RawRow): MapResult {
   else if (tipo === 'pagamento de credito') kind = 'card_payment';
   else if (tipo === 'entrada') kind = paymentMethod === 'credit' ? 'reimbursement' : 'income';
   else return fail(`tipo desconhecido: ${raw.tipo}`);
+
+  const description = raw.descricao?.replace(/\s+/g, ' ').trim() || null;
+  if (description !== null && description.length > MAX_DESCRIPTION) {
+    return fail(`descrição com ${description.length} caracteres (máximo ${MAX_DESCRIPTION})`);
+  }
 
   const cents = Math.round(raw.valor * 100 + 1e-7); // arredonda meio centavo para cima
   if (cents <= 0) return fail(`valor não positivo: ${raw.valor}`);
@@ -91,6 +101,7 @@ export function mapRow(raw: RawRow): MapResult {
         person: raw.pessoa,
         installmentNo: parsed.installmentNo,
         installmentTotal: parsed.installmentTotal,
+        description,
         sourceRef: `Base!R${raw.sheetRow}`,
       },
       flags: { nameIssue: raw.nameIssue, fixedMissing, roundingDelta: raw.valor - cents / 100 },

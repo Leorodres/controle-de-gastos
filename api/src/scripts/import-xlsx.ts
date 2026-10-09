@@ -85,13 +85,13 @@ async function main(): Promise<void> {
         await client.query(
           `INSERT INTO transactions
              (occurred_on, name, name_normalized, raw_name, amount, kind, payment_method, is_fixed,
-              category_id, person_id, installment_no, installment_total, source, source_ref)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'xlsx',$13)`,
+              category_id, person_id, installment_no, installment_total, description, source, source_ref)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'xlsx',$14)`,
           [
             tx.occurredOn, tx.name, tx.nameNormalized, tx.rawName, tx.amount, tx.kind, tx.paymentMethod, tx.isFixed,
             tx.category ? categoryIds.get(tx.category) : null,
             tx.person ? personIds.get(tx.person) : null,
-            tx.installmentNo, tx.installmentTotal, tx.sourceRef,
+            tx.installmentNo, tx.installmentTotal, tx.description, tx.sourceRef,
           ],
         );
       }

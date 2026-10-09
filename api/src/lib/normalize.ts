@@ -35,3 +35,8 @@ export function parseInstallment(raw: string): ParsedName {
   }
   return { name: cleaned, installmentNo: null, installmentTotal: null };
 }
+
+/** Escapa %, _ e \ para usar o texto dentro de um LIKE. */
+export function escapeLike(s: string): string {
+  return s.replace(/[\\%_]/g, (c) => `\\${c}`);
+}
